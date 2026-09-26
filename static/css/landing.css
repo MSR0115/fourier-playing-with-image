@@ -1,0 +1,59 @@
+/* ==========================================================================
+   landing.css: the front door. One hero, one live demo, two doors.
+   ========================================================================== */
+body { min-height: 100%; }
+
+.grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 34px 34px; background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 60% 55% at 50% 38%, #000 15%, transparent 100%);
+          mask-image: radial-gradient(ellipse 60% 55% at 50% 38%, #000 15%, transparent 100%);
+}
+
+.cornerToggle { position: fixed; top: 18px; right: 18px; z-index: 2; }
+
+.hero {
+  position: relative; z-index: 1;
+  min-height: 100vh; display: flex; flex-direction: column; align-items: center;
+  padding: 64px 24px 56px; text-align: center;
+}
+
+#demo { width: 148px; height: 148px; margin-bottom: 6px; }
+
+h1 {
+  margin: 0 0 14px; font: 400 clamp(38px, 7vw, 68px)/1.04 var(--serif);
+  letter-spacing: -.015em; color: var(--ink);
+}
+.tagline { margin: 0 0 48px; max-width: 46ch; color: var(--muted); font-size: 16px; line-height: 1.5; }
+
+.doors {
+  width: 100%; max-width: 760px; display: grid; grid-template-columns: 1fr 1fr; gap: 18px;
+}
+.door {
+  position: relative; text-align: left; padding: 26px 24px 24px; border-radius: 18px;
+  background: var(--panel); border: 1.5px solid var(--line);
+  display: flex; flex-direction: column; min-height: 190px;
+  transition: border-color .25s, transform .2s, background-color .25s;
+}
+.door h2 { margin: 4px 0 10px; font: 400 26px/1.1 var(--serif); color: var(--ink); letter-spacing: -.005em; }
+.door p { margin: 0; color: var(--muted); font-size: 14px; line-height: 1.55; flex: 1; }
+.doorEyebrow { font: 500 12.5px/1 var(--sans); color: var(--muted); }
+.doorGo { margin-top: 18px; display: inline-flex; align-items: center; gap: 6px; font: 500 13.5px/1 var(--sans); color: var(--ink); }
+.doorGo svg { transition: transform .2s; }
+
+.door:not(.muted):hover { border-color: var(--accent); transform: translateY(-2px); background: var(--field); }
+.door:not(.muted):hover .doorGo svg { transform: translateX(3px); }
+.door:not(.muted):focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+.door:not(.muted) .doorEyebrow { color: var(--accent); }
+
+.door.muted { border-style: dashed; opacity: .68; }
+.door.muted:hover { border-color: var(--muted); }
+.door.muted:focus-visible { outline: 2px solid var(--focus); outline-offset: 3px; }
+
+@media (max-width: 640px) {
+  .doors { grid-template-columns: 1fr; }
+  .hero { padding-top: 48px; }
+}

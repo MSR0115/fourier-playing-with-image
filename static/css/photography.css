@@ -1,0 +1,80 @@
+/* ==========================================================================
+   photography.css: the hub chrome around the tools (header + rail + panels).
+   The Epicycle Drawing tool itself is styled by epicycle.css, untouched.
+   ========================================================================== */
+.hub { height: 100vh; display: flex; flex-direction: column; }
+
+/* ---------- header ---------- */
+.hubHeader {
+  flex: none; display: flex; align-items: center; gap: 18px;
+  height: 56px; padding: 0 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.hubHeader .back {
+  display: inline-flex; align-items: center; gap: 7px; color: var(--muted);
+  font-size: 13.5px; font-weight: 500; white-space: nowrap; transition: color .2s;
+}
+.hubHeader .back:hover { color: var(--ink); }
+.hubHeader .back svg { flex: none; }
+.hubName {
+  margin: 0; padding-left: 18px; border-left: 1px solid var(--line);
+  font: 400 19px/1 var(--serif); letter-spacing: -.005em; color: var(--ink);
+}
+.hubHeader .themeToggle { margin-left: auto; }
+
+/* ---------- body: rail + panels ---------- */
+.hubBody { flex: 1; min-height: 0; display: flex; }
+
+.rail {
+  flex: none; width: 210px; overflow-y: auto; background: var(--panel);
+  border-right: 1px solid var(--line); padding: 14px 10px; display: flex; flex-direction: column; gap: 4px;
+}
+.railBtn {
+  appearance: none; cursor: pointer; text-align: left; display: grid;
+  grid-template-columns: 22px 1fr auto; align-items: center; gap: 10px;
+  padding: 10px 10px; border-radius: 10px; border: 1px solid transparent; background: transparent; color: var(--muted);
+  font-size: 13.5px; font-weight: 500; transition: background-color .2s, color .2s, border-color .2s;
+}
+.railBtn svg { width: 20px; height: 20px; }
+.railBtn:hover { background: var(--field); color: var(--ink); }
+.railBtn .soon {
+  font: 500 10px/1 var(--sans); font-style: normal; color: var(--muted);
+  border: 1px solid var(--line); border-radius: 999px; padding: 3px 6px; letter-spacing: .02em;
+}
+.railBtn.active { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.railBtn.active svg { color: var(--accent); }
+.railBtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.hubPanels { flex: 1; min-width: 0; position: relative; }
+.hubPanel { display: none; height: 100%; }
+.hubPanel.active { display: flex; }
+.hubPanel[data-panel="epicycle"].active > .app { flex: 1; min-width: 0; }
+
+/* ---------- "not built yet" panels ---------- */
+.hubPanel:not([data-panel="epicycle"]) { align-items: center; justify-content: center; padding: 24px; }
+.soonCard { max-width: 42ch; text-align: center; color: var(--ink); }
+.soonGlyph { width: 150px; height: 100px; color: var(--muted); opacity: .7; margin-bottom: 8px; }
+.soonCard h2 { margin: 6px 0 10px; font: 400 27px/1.15 var(--serif); letter-spacing: -.005em; }
+.soonCard p { margin: 0 0 20px; color: var(--muted); font-size: 14.5px; line-height: 1.55; }
+.soonCard .btn {
+  appearance: none; cursor: pointer; padding: 9px 16px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--field); color: var(--ink); font-weight: 500; font-size: 13.5px;
+  transition: border-color .2s, transform .15s;
+}
+.soonCard .btn:hover { border-color: var(--accent); }
+.soonCard .btn:active { transform: translateY(1px); }
+
+/* ---------- small screens ---------- */
+@media (max-width: 860px) {
+  .hubHeader { height: 50px; gap: 12px; padding: 0 12px; }
+  .hubHeader .back span { display: none; }
+  .hubName { padding-left: 12px; font-size: 16px; }
+  .hubBody { flex-direction: column; }
+  .rail {
+    width: 100%; flex-direction: row; overflow-x: auto; overflow-y: hidden;
+    border-right: 0; border-bottom: 1px solid var(--line); padding: 8px;
+  }
+  .railBtn { grid-template-columns: 18px auto; white-space: nowrap; }
+  .railBtn .soon { display: none; }
+  .soonGlyph { width: 110px; height: 74px; }
+  .soonCard h2 { font-size: 23px; }
+}

@@ -1,0 +1,168 @@
+/* ==========================================================================
+   holography.css: the Holography page. One tool so far -- Hologram
+   retrieval, an 8-sample 1-D Gerchberg-Saxton loop -- built from the same
+   panel / btn / chip vocabulary as photography.css and frequency.css, on
+   theme.css's shared tokens, so this room reads as part of the same
+   instrument rather than a different site pasted in.
+   ========================================================================== */
+body { min-height: 100%; height: 100%; overflow: hidden; }
+
+.grid {
+  position: fixed; inset: 0; z-index: 0; pointer-events: none;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 34px 34px; background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 70%);
+          mask-image: radial-gradient(ellipse 70% 60% at 50% 0%, #000 0%, transparent 70%);
+}
+
+.barHeader {
+  position: relative; z-index: 2; display: flex; align-items: center; gap: 18px;
+  height: 56px; padding: 0 18px; border-bottom: 1px solid var(--line); background: var(--panel);
+}
+.barHeader .back { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); font-size: 13.5px; font-weight: 500; transition: color .2s; white-space: nowrap; }
+.barHeader .back:hover { color: var(--ink); }
+.barHeader .hubName {
+  margin: 0; padding-left: 18px; border-left: 1px solid var(--line);
+  font: 400 19px/1 var(--serif); letter-spacing: -.005em; color: var(--ink);
+}
+.barHeader .themeToggle { margin-left: auto; }
+
+/* ---------------------------------------------------------------- page-local color roles,
+   mapped onto the shared palette so light/dark both just work */
+.holoWrap {
+  --holo-amp: var(--accent);
+  --holo-amp-soft: var(--accent-soft);
+  --holo-target: var(--muted);
+  --holo-good: var(--p3);
+  position: relative; z-index: 1; height: calc(100vh - 56px); overflow-y: auto;
+  padding: 26px 28px 48px;
+}
+.holoInner { max-width: 1180px; margin: 0 auto; }
+
+/* ---------------------------------------------------------------- intro */
+.holoInner h1.holoTitle { margin: 0 0 10px; font: 400 clamp(26px, 3.4vw, 34px)/1.1 var(--serif); letter-spacing: -.01em; color: var(--ink); }
+.holoLede { margin: 0 0 18px; max-width: 74ch; color: var(--muted); font-size: 14.5px; line-height: 1.6; }
+
+.holoBadge {
+  display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600;
+  color: var(--holo-good); background: rgba(11, 125, 76, .12); border: 1px solid var(--holo-good);
+  border-radius: 999px; padding: 4px 11px; margin-bottom: 18px;
+}
+.holoBadge .dot { width: 6px; height: 6px; border-radius: 50%; background: var(--holo-good); }
+.holoBadge.offline { color: var(--danger); border-color: var(--danger); background: rgba(163, 36, 28, .1); }
+.holoBadge.offline .dot { background: var(--danger); }
+
+.holoStages { list-style: none; counter-reset: stage; display: grid; grid-template-columns: repeat(4, 1fr);
+  gap: 10px; padding: 0; margin: 0 0 22px; }
+.holoStages li { counter-increment: stage; background: var(--field); border: 1px solid var(--line);
+  border-radius: 12px; padding: 11px 13px; font-size: 12.5px; line-height: 1.45; color: var(--muted); }
+.holoStages li::before {
+  content: counter(stage); display: inline-flex; align-items: center; justify-content: center;
+  width: 18px; height: 18px; border-radius: 50%; background: var(--accent-soft); color: var(--accent);
+  font-family: var(--sans); font-size: 11px; font-weight: 700; margin-right: 8px;
+}
+.holoStages b { color: var(--ink); font-weight: 600; }
+
+/* ---------------------------------------------------------------- controls bar */
+.holoControls {
+  display: flex; flex-wrap: wrap; align-items: center; gap: 10px 16px;
+  background: var(--panel); border: 1px solid var(--line); border-radius: 14px;
+  padding: 13px 16px; margin-bottom: 22px;
+}
+.holoBtnGroup { display: flex; gap: 6px; flex-wrap: wrap; align-items: center; }
+.holoDiv { width: 1px; align-self: stretch; background: var(--line); }
+
+.holoBtn {
+  appearance: none; cursor: pointer; font: 500 13.5px var(--sans);
+  border: 1px solid var(--line); background: var(--field); color: var(--ink);
+  padding: 7px 13px; border-radius: 9px; transition: border-color .2s, background-color .2s, transform .15s;
+}
+.holoBtn:hover:not(:disabled) { border-color: var(--accent); }
+.holoBtn:active:not(:disabled) { transform: translateY(1px); }
+.holoBtn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.holoBtn.primary:hover { filter: brightness(1.08); }
+.holoBtn:disabled { opacity: .45; cursor: default; }
+.holoBtn:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+.holoTag { font-size: 12.5px; padding: 6px 11px; border-radius: 999px; }
+.holoTag[aria-pressed="true"] { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+
+.holoFile {
+  position: relative; font: 500 12.5px var(--sans); padding: 6px 11px; border: 1.5px dashed var(--line); border-radius: 999px;
+  cursor: pointer; color: var(--muted); display: inline-flex; align-items: center; gap: 6px;
+  transition: border-color .2s, color .2s, background-color .2s;
+}
+.holoFile:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
+.holoFile input {
+  position: absolute; inset: 0; opacity: 0; cursor: pointer;
+  width: 100%; height: 100%;
+}
+.holoThumb { width: 22px; height: 22px; border-radius: 5px; object-fit: cover; border: 1px solid var(--line); display: none; }
+
+.holoSpeed { display: flex; align-items: center; gap: 8px; font-size: 12.5px; color: var(--muted); }
+.holoControls input[type=range] { width: 108px; accent-color: var(--accent); }
+
+.holoStats { display: flex; gap: 18px; margin-left: auto; font-size: 12.5px; color: var(--muted); }
+.holoStats b { color: var(--ink); font-weight: 600; font-variant-numeric: tabular-nums; }
+.holoConverged { display: inline-block; margin-left: 6px; font-size: 11px; color: var(--holo-good); opacity: 0; transition: opacity .3s; }
+.holoConverged.show { opacity: 1; }
+
+.holoUploadNote { flex-basis: 100%; font-size: 11.5px; color: var(--muted); margin: -2px 0 0; min-height: 1.4em; }
+.holoUploadNote.err { color: var(--danger); }
+
+/* ---------------------------------------------------------------- panels */
+.holoPanel { background: var(--field); border: 1px solid var(--line); border-radius: 14px; padding: 16px 17px 14px; }
+.holoPanel h2 { font-size: 14.5px; font-weight: 600; margin: 0 0 2px; color: var(--ink); }
+.holoPanel p.holoSub { font-size: 12px; color: var(--muted); margin: 0 0 10px; }
+.holoLegend { display: flex; gap: 16px; font-size: 11.5px; color: var(--muted); margin-bottom: 8px; }
+.holoLegend span { display: inline-flex; align-items: center; gap: 6px; }
+.holoSwatch { width: 10px; height: 10px; border-radius: 3px; display: inline-block; }
+
+.holoTopGrid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+.holoInner canvas { display: block; width: 100%; }
+.holoChart { height: 180px; }
+
+.holoTargetHead { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
+.holoTargetThumb { width: 52px; height: 40px; object-fit: cover; border-radius: 7px; border: 1px solid var(--line); display: none; }
+
+.holoMidPanel { margin-bottom: 16px; }
+.holoRowScroll { display: flex; gap: 10px; overflow-x: auto; padding-bottom: 6px; }
+.holoCell { flex: 0 0 auto; width: 102px; text-align: center; }
+.holoCell canvas { height: 102px; }
+.holoCell.holoWave canvas { height: 62px; }
+.holoCell .holoK { font: 12px var(--sans); color: var(--muted); margin-top: 2px; }
+.holoCell .holoRv { font-size: 11.5px; line-height: 1.5; color: var(--muted); }
+.holoCell .holoRv .a { color: var(--holo-amp); }
+.holoCell .holoRv .p { color: var(--p4); }
+
+.holoBottomGrid { display: grid; grid-template-columns: 2.2fr 1fr; gap: 14px; margin-bottom: 16px; }
+.holoPhaseRow { display: flex; gap: 8px; }
+.holoPhaseCell { flex: 1; text-align: center; }
+.holoPhaseCell .holoSwCell { height: 44px; border-radius: 8px; border: 1px solid var(--line); }
+.holoPhaseCell .holoDeg { font-size: 11.5px; color: var(--muted); margin-top: 5px; }
+.holoHueLegend { height: 10px; border-radius: 6px; margin-top: 12px;
+  background: linear-gradient(90deg, hsl(180 65% 50%), hsl(240 65% 50%), hsl(300 65% 50%), hsl(0 65% 50%), hsl(60 65% 50%), hsl(120 65% 50%), hsl(180 65% 50%)); }
+.holoHueLabels { display: flex; justify-content: space-between; font-size: 11px; color: var(--muted); margin-top: 4px; }
+
+.holoHistPanel { margin-bottom: 8px; }
+.holoHistScroll { height: 200px; overflow-y: auto; border: 1px solid var(--line); border-radius: 10px; background: var(--paper); }
+.holoHistEmpty { display: flex; align-items: center; justify-content: center; height: 100%; color: var(--muted); font-size: 12.5px; }
+
+.holoFoot { margin-top: 22px; font-size: 12px; color: var(--muted); line-height: 1.6; max-width: 78ch; }
+.holoFoot .mono, .holoInner .mono { font-family: var(--sans); font-weight: 600; color: var(--ink); }
+
+/* ---------------------------------------------------------------- small screens */
+@media (max-width: 860px) {
+  .barHeader { height: 50px; gap: 12px; padding: 0 12px; }
+  .barHeader .back span { display: none; }
+  .barHeader .hubName { padding-left: 12px; font-size: 16px; }
+  .holoWrap { height: calc(100vh - 50px); padding: 18px 16px 36px; }
+  .holoTopGrid, .holoBottomGrid { grid-template-columns: 1fr; }
+  .holoStages { grid-template-columns: 1fr 1fr; }
+  .holoStats { margin-left: 0; width: 100%; order: 5; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .holoBtn { transition: none; }
+}

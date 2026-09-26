@@ -1,0 +1,168 @@
+/* ==========================================================================
+   epicycle.css: the epicycle stage + control panel (the "Epicycle drawing"
+   tool inside the Photography hub). Color tokens come from theme.css, which
+   this page loads first.
+   ========================================================================== */
+body { height: 100%; overflow: hidden; }
+.app { height: 100%; display: grid; grid-template-columns: minmax(0, 1fr) 348px; }
+
+/* ---------- stage ---------- */
+.stage { position: relative; overflow: hidden; min-height: 0; background: var(--paper); touch-action: manipulation; }
+.grid {
+  position: absolute; inset: 0; z-index: 0;
+  background-image:
+    linear-gradient(var(--grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 34px 34px; background-position: center;
+  -webkit-mask-image: radial-gradient(ellipse 62% 58% at 50% 52%, #000 20%, transparent 100%);
+          mask-image: radial-gradient(ellipse 62% 58% at 50% 52%, #000 20%, transparent 100%);
+}
+.stage canvas { position: absolute; inset: 0; width: 100%; height: 100%; z-index: 1; pointer-events: none; }
+#cRef, #cStr, #cTrail { opacity: 0; transition: opacity .8s ease; }
+#cRef { z-index: 1; } #cStr { z-index: 2; } #cTrail { z-index: 3; } #cLive { z-index: 4; }
+
+.steps {
+  position: absolute; z-index: 6; top: 14px; left: 50%; transform: translateX(-50%);
+  display: flex; align-items: center; margin: 0; padding: 0; list-style: none;
+  font-size: 13px; color: var(--muted); white-space: nowrap;
+}
+.steps li { display: flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px; transition: color .5s, background-color .5s; }
+.steps li + li::before { content: ''; width: 18px; height: 1px; background: var(--line); margin: 0 6px 0 -4px; transition: background-color .5s; }
+.steps li.done + li::before, .steps li.active::before { background: var(--ink); }
+.steps .dot { width: 8px; height: 8px; border-radius: 50%; border: 1.5px solid currentColor; transition: background-color .5s, border-color .5s, transform .5s; }
+.steps li.done { color: var(--ink); }
+.steps li.done .dot { background: currentColor; }
+.steps li.active { color: var(--ink); background: var(--accent-soft); }
+.steps li.active .dot { background: var(--accent); border-color: var(--accent); transform: scale(1.3); }
+
+.hud {
+  position: absolute; z-index: 6; left: 18px; right: 18px; bottom: 14px;
+  display: flex; justify-content: space-between; gap: 16px; align-items: baseline;
+  font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums;
+}
+.hud .status { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; transition: color .3s; }
+.hud .status.err { color: var(--danger); }
+.hud .readout { white-space: nowrap; }
+.bar { position: absolute; z-index: 6; left: 0; right: 0; bottom: 0; height: 2px; background: transparent; }
+.bar i { display: block; height: 100%; width: 100%; background: var(--accent); transform-origin: 0 50%; transform: scaleX(0); }
+
+.veil {
+  position: absolute; inset: 12px; z-index: 8; border: 1.5px dashed var(--accent); border-radius: 18px;
+  background: var(--accent-soft); display: grid; place-items: center;
+  font-family: var(--serif); font-size: 30px; opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+body.dragging .veil { opacity: 1; }
+
+/* ---------- panel ---------- */
+.panel { overflow-y: auto; min-height: 0; background: var(--panel); border-left: 1px solid var(--line); padding: 26px 24px 30px; }
+.panel .toolTitle { margin: 0 0 8px; font: 400 32px/1 var(--serif); letter-spacing: -.01em; }
+.lead { margin: 0 0 6px; color: var(--muted); font-size: 14.5px; max-width: 30ch; }
+section { padding: 20px 0 4px; margin-top: 18px; border-top: 1px solid var(--line); }
+.panel h3 { margin: 0 0 12px; font: 600 14px/1.2 var(--sans); }
+.fine { margin: 10px 0 0; font-size: 12.5px; color: var(--muted); line-height: 1.4; }
+
+.drop { border: 1.5px dashed var(--line); border-radius: 14px; padding: 16px; transition: border-color .25s, background-color .25s; }
+.drop:hover, .drop:focus-within { border-color: var(--accent); background: var(--accent-soft); }
+.drop p { margin: 0 0 12px; font-size: 14px; }
+.drop .fine { margin: 12px 0 0; }
+.row { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.btn {
+  appearance: none; cursor: pointer; padding: 8px 14px; border-radius: 10px;
+  border: 1px solid var(--line); background: var(--field); font-weight: 500; font-size: 14px;
+  transition: transform .15s, background-color .2s, border-color .2s, opacity .2s;
+}
+.btn:hover { border-color: var(--ink); }
+.btn:active { transform: translateY(1px); }
+.btn.primary { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.btn.primary:hover { filter: brightness(1.06); }
+.btn:focus-visible, .chip input:focus-visible + span, .seg input:focus-visible + span, input[type=range]:focus-visible, .drop:focus-visible {
+  outline: 2px solid var(--focus); outline-offset: 2px;
+}
+.btn[hidden] { display: none; }
+
+.ctl { display: grid; grid-template-columns: 1fr auto; align-items: baseline; margin-bottom: 8px; }
+.ctl label { font-size: 14px; }
+.ctl output { font-size: 13px; color: var(--muted); font-variant-numeric: tabular-nums; }
+.ctl input[type=range] { grid-column: 1 / -1; }
+fieldset { border: 0; margin: 0; padding: 0; min-width: 0; transition: opacity .4s; }
+fieldset:disabled { opacity: .42; }
+
+input[type=range] {
+  -webkit-appearance: none; appearance: none; width: 100%; height: 24px; margin: 0; background: transparent; cursor: pointer;
+}
+input[type=range]::-webkit-slider-runnable-track {
+  height: 3px; border-radius: 3px;
+  background: linear-gradient(to right, var(--accent) var(--p, 50%), var(--line) var(--p, 50%));
+}
+input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none; width: 18px; height: 18px; margin-top: -7.5px; border-radius: 50%;
+  background: var(--paper); border: 2px solid var(--accent); box-shadow: 0 0 0 0 var(--accent-soft); transition: box-shadow .2s;
+}
+input[type=range]:hover::-webkit-slider-thumb, input[type=range]:active::-webkit-slider-thumb { box-shadow: 0 0 0 6px var(--accent-soft); }
+input[type=range]::-moz-range-track { height: 3px; border-radius: 3px; background: var(--line); }
+input[type=range]::-moz-range-progress { height: 3px; border-radius: 3px; background: var(--accent); }
+input[type=range]::-moz-range-thumb { width: 14px; height: 14px; border-radius: 50%; background: var(--paper); border: 2px solid var(--accent); }
+input[type=range]:disabled { cursor: default; }
+
+.chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 12px; }
+.chip, .seg label { position: relative; }
+.chip { cursor: pointer; }
+.chip input, .seg input { position: absolute; opacity: 0; width: 1px; height: 1px; }
+.chip span {
+  display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+  border: 1px solid var(--line); font-size: 13.5px; color: var(--muted);
+  transition: background-color .2s, border-color .2s, color .2s;
+}
+.chip span::before { content: ''; width: 7px; height: 7px; border-radius: 50%; border: 1.5px solid currentColor; transition: background-color .2s; }
+.chip input:checked + span { background: var(--accent-soft); border-color: var(--accent); color: var(--ink); }
+.chip input:checked + span::before { background: var(--accent); border-color: var(--accent); }
+
+.chip.part span::before { border-color: var(--pc); }
+.chip.part input:checked + span { background: transparent; border-color: var(--pc); color: var(--ink); }
+.chip.part input:checked + span::before { background: var(--pc); border-color: var(--pc); }
+.chip.absent, .chip:has(input:disabled) { cursor: default; opacity: .4; }
+.credit { margin-top: 26px; }
+.tools { position: absolute; z-index: 7; top: 60px; left: 14px; display: flex; flex-direction: column; gap: 6px; }
+.tool {
+  appearance: none; cursor: pointer; display: grid; grid-template-columns: 22px auto; align-items: center; gap: 8px; text-align: left;
+  padding: 8px 12px 8px 10px; border-radius: 12px; border: 1px solid var(--line); background: var(--field); color: var(--ink);
+  font-size: 13.5px; font-weight: 500; transition: background-color .2s, border-color .2s, color .2s, transform .15s, opacity .2s;
+}
+.tool:hover:not(:disabled) { border-color: var(--ink); }
+.tool:active:not(:disabled) { transform: translateY(1px); }
+.tool[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); color: var(--accent-ink); }
+.tool[data-tool="erase"][aria-pressed="true"] { background: var(--danger); border-color: var(--danger); color: var(--paper); }
+.tool:disabled { opacity: .4; cursor: default; }
+.tool:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+body.tooling .stage { cursor: none; touch-action: none; }
+body.tooling .tools, body.tooling .steps, body.tooling .hud { cursor: default; }
+.field-label { font-size: 14px; margin: 14px 0 8px; display: block; }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 10px; overflow: hidden; }
+.seg label { cursor: pointer; }
+.seg span { display: block; padding: 6px 14px; font-size: 13.5px; color: var(--muted); transition: background-color .2s, color .2s; }
+.seg label + label span { border-left: 1px solid var(--line); }
+.seg input:checked + span { background: var(--ink); color: var(--paper); }
+.seg input:disabled + span { opacity: .4; cursor: default; }
+
+.actions { display: flex; flex-wrap: wrap; gap: 8px; }
+
+/* ---------- small screens ---------- */
+@media (max-width: 860px) {
+  .app { grid-template-columns: minmax(0, 1fr); grid-template-rows: minmax(0, 56%) minmax(0, 1fr); }
+  .panel { border-left: 0; border-top: 1px solid var(--line); padding: 20px 18px 28px; }
+  .panel .toolTitle { font-size: 28px; }
+  .steps { font-size: 12px; top: 8px; }
+  .steps li { padding: 5px 8px; gap: 6px; }
+  .steps li:not(.active) { font-size: 0; gap: 0; padding: 5px 7px; }
+  .steps li.active { font-size: 12px; gap: 6px; }
+  .steps li + li::before { width: 10px; margin: 0 4px 0 -2px; }
+  .hud .readout { display: none; }
+  .veil { font-size: 22px; }
+  .tools { top: 44px; left: 8px; }
+  .tool { grid-template-columns: 22px; padding: 8px; }
+  .tool span { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: .01ms !important; }
+}

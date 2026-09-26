@@ -1,0 +1,53 @@
+<!doctype html>
+<!-- Landing page. Served by app.py (Flask). Files: index.html, css/, js/ -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Fourier Playing With Image</title>
+<meta name="description" content="A face becomes a curve, and a curve becomes a stack of spinning circles. Two darkrooms for images and light: Photography and Holography.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/landing.css">
+<script src="js/theme.js"></script>
+</head>
+<body>
+<div class="grid" aria-hidden="true"></div>
+
+<button class="themeToggle cornerToggle" type="button">
+  <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+  <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+</button>
+
+<main class="hero">
+  <canvas id="demo" width="220" height="220" aria-hidden="true"></canvas>
+
+  <h1>Fourier Playing<br>With Image</h1>
+  <p class="tagline">A photograph is a sum of circles waiting to be found. Pick a darkroom.</p>
+
+  <div class="doors">
+    <a class="door" href="photography.html">
+      <span class="doorEyebrow">Ready now</span>
+      <h2>Photography</h2>
+      <p>Frequency filtering, edge detection, contour finding, and epicycle drawing — turn a face into rotating circles.</p>
+      <span class="doorGo">Open the darkroom
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+
+    <a class="door" href="holography.html">
+      <span class="doorEyebrow">Ready now</span>
+      <h2>Holography</h2>
+      <p>Hologram retrieval: an 8-sample Gerchberg&ndash;Saxton loop bounces a wavefront between the hologram and image planes until a phase-only pattern reproduces your target.</p>
+      <span class="doorGo">Open the darkroom
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12h14M13 6l6 6-6 6"/></svg>
+      </span>
+    </a>
+  </div>
+</main>
+
+<script src="js/landing.js"></script>
+</body>
+</html>

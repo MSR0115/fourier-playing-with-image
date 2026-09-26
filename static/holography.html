@@ -1,0 +1,305 @@
+<!doctype html>
+<!-- Holography. Served by app.py (Flask). Three tools:
+     1. Hologram retrieval (the original 8-sample 1-D GS loop, /api/holo/*),
+     2. Fourier hologram generator (text/shape/image 2-D GS, /api/gsgen/*),
+     3. Animated hologram (played-back sequence, /api/holo2d/anim/build). -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Holography — Fourier Playing With Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&family=IBM+Plex+Mono:wght@400;500;600&family=Source+Serif+4:opsz,wght@8..60,500;8..60,600&family=Space+Grotesk:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/holography.css">
+<link rel="stylesheet" href="css/holography-tools.css">
+<script src="js/theme.js"></script>
+</head>
+<body>
+<div class="grid" aria-hidden="true"></div>
+
+<header class="barHeader">
+  <a class="back" href="index.html">
+    <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+    <span>Fourier Playing With Image</span>
+  </a>
+  <h1 class="hubName">Holography</h1>
+  <button class="themeToggle" type="button">
+    <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+    <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+  </button>
+</header>
+
+<div class="holoWrap">
+  <div class="holoInner">
+
+    <nav class="holoTabs" aria-label="Holography tools">
+      <button class="holoTab active" type="button" data-tool="gs" aria-selected="true">Hologram retrieval</button>
+      <button class="holoTab" type="button" data-tool="gsgen" aria-selected="false">Fourier hologram generator</button>
+      <button class="holoTab" type="button" data-tool="anim" aria-selected="false">Animated hologram</button>
+    </nav>
+
+    <!-- ================= Tool 1: Hologram retrieval (original) ================= -->
+    <section class="holoToolPanel active" data-tool="gs">
+
+    <h2 class="holoTitle">Hologram retrieval</h2>
+    <p class="holoLede">A phase-only hologram is found by bouncing a wavefront between the hologram plane and the image plane, keeping only the amplitude each plane actually knows and carrying the phase forward. This is a reduced, 8-sample version of the Gerchberg&ndash;Saxton loop &mdash; small enough to watch every wave change on every pass, and to see it as an actual wave in time, not just a vector. Every FFT here runs in Python on this same server, via <span class="mono">/api/holo/*</span>.</p>
+
+    <div id="holoBadge" class="holoBadge"><span class="dot"></span><span id="holoBadgeText">Ready</span></div>
+
+    <ol class="holoStages">
+      <li><b>Propagate</b> the current hologram guess to the image plane (Fourier transform).</li>
+      <li><b>Match brightness</b>: swap in the target image's amplitude, keep the phase just computed.</li>
+      <li><b>Propagate back</b> to the hologram plane (inverse Fourier transform).</li>
+      <li><b>Match illumination</b>: flatten the amplitude to the laser's uniform intensity, keep the phase.</li>
+    </ol>
+
+    <div class="holoControls">
+      <div class="holoBtnGroup">
+        <button id="holoPlay" class="holoBtn primary" type="button">Play</button>
+        <button id="holoStep" class="holoBtn" type="button">Step</button>
+        <button id="holoReset" class="holoBtn" type="button">New hologram guess</button>
+      </div>
+      <div class="holoDiv"></div>
+      <div class="holoBtnGroup" role="group" aria-label="Target image">
+        <button class="holoBtn holoTag" data-pattern="single" type="button" aria-pressed="true">Single spot</button>
+        <button class="holoBtn holoTag" data-pattern="double" type="button" aria-pressed="false">Two spots</button>
+        <button class="holoBtn holoTag" data-pattern="smooth" type="button" aria-pressed="false">Smooth</button>
+        <button class="holoBtn holoTag" data-pattern="random" type="button" aria-pressed="false">Random</button>
+        <label class="holoFile">
+          <input type="file" id="holoImgInput" accept="image/*">
+          <span>Upload image</span>
+        </label>
+        <img id="holoCtrlThumb" class="holoThumb" alt="">
+      </div>
+      <div class="holoDiv"></div>
+      <div class="holoSpeed">
+        <label for="holoSpeed">Speed</label>
+        <input type="range" id="holoSpeed" min="1" max="10" value="5">
+      </div>
+      <div class="holoStats">
+        <span>Iteration <b id="holoIter">0</b></span>
+        <span>Error (RMSE) <b id="holoErr">&mdash;</b><span id="holoConv" class="holoConverged">converged</span></span>
+      </div>
+      <p class="holoUploadNote" id="holoUploadNote"></p>
+    </div>
+
+    <div class="holoTopGrid">
+      <div class="holoPanel">
+        <div class="holoTargetHead">
+          <div>
+            <h2>Image&#8209;plane amplitude</h2>
+            <p class="holoSub">Target image (known) against the current reconstruction</p>
+          </div>
+          <img id="holoTargetThumb" class="holoTargetThumb" alt="Uploaded target image">
+        </div>
+        <div class="holoLegend">
+          <span><span class="holoSwatch" style="background:var(--holo-target)"></span>Target</span>
+          <span><span class="holoSwatch" style="background:var(--holo-amp)"></span>Reconstructed</span>
+        </div>
+        <canvas id="holoAmpTarget" class="holoChart"></canvas>
+      </div>
+      <div class="holoPanel">
+        <h2>Hologram&#8209;plane amplitude</h2>
+        <p class="holoSub">Before the uniform&#8209;illumination constraint is reapplied</p>
+        <div class="holoLegend">
+          <span><span class="holoSwatch" style="background:var(--holo-amp)"></span>Current wave</span>
+          <span><span class="holoSwatch" style="background:var(--holo-target)"></span>Illumination = 1</span>
+        </div>
+        <canvas id="holoRawAmp" class="holoChart"></canvas>
+      </div>
+    </div>
+
+    <div class="holoPanel holoMidPanel">
+      <h2>Hologram&#8209;plane phasors &mdash; the 8 waves</h2>
+      <p class="holoSub">Amplitude (length) and phase (angle, colored) of each of the 8 samples, updating every iteration</p>
+      <div class="holoRowScroll" id="holoPhasorRow"></div>
+    </div>
+
+    <div class="holoPanel holoMidPanel">
+      <h2>Same 8 waves, in time</h2>
+      <p class="holoSub">y = A&middot;sin(&omega;t + &phi;) &mdash; each trace runs continuously; watch the height and the phase shift move as the loop iterates</p>
+      <div class="holoRowScroll" id="holoWaveRow"></div>
+    </div>
+
+    <div class="holoBottomGrid">
+      <div class="holoPanel">
+        <h2>Computed hologram phase</h2>
+        <p class="holoSub">The phase&#8209;only pattern written to the hologram &mdash; this is the algorithm's output</p>
+        <div class="holoPhaseRow" id="holoPhaseRow"></div>
+        <div class="holoHueLegend"></div>
+        <div class="holoHueLabels"><span>&minus;180&deg;</span><span>0&deg;</span><span>180&deg;</span></div>
+      </div>
+      <div class="holoPanel">
+        <h2>Convergence</h2>
+        <p class="holoSub">RMSE between reconstructed and target amplitude</p>
+        <canvas id="holoSpark" style="height:114px;"></canvas>
+      </div>
+    </div>
+
+    <div class="holoPanel holoHistPanel">
+      <h2>Phase pattern after every iteration</h2>
+      <p class="holoSub">Each row is the hologram phase the loop produced at that pass &mdash; newest at the bottom</p>
+      <div class="holoHistScroll" id="holoHistScroll">
+        <div class="holoHistEmpty" id="holoHistEmpty">Run an iteration to start the record.</div>
+        <canvas id="holoHistCanvas" style="display:none;"></canvas>
+      </div>
+    </div>
+
+    <p class="holoFoot">Model: 8 unit-amplitude samples at the hologram plane, related to the image plane by an 8-point discrete Fourier transform. An uploaded image is reduced to 8 raw brightness values in the browser (plain pixel sampling, not FFT work) &mdash; everything past that, including normalization and every iteration, runs in Python (<span class="mono">numpy.fft.fft</span> / <span class="mono">ifft</span>, in <span class="mono">epicycle/holography.py</span>) behind <span class="mono">POST /api/holo/target</span>, <span class="mono">/api/holo/step</span>, and <span class="mono">/api/holo/reset</span>.</p>
+
+    </section>
+
+    <!-- ================= Tool 2: Fourier hologram generator (GerchbergSaxton) ================= -->
+    <section class="holoToolPanel" data-tool="gsgen">
+
+      <h2 class="holoTitle">Fourier hologram generator</h2>
+      <p class="holoLede">Upload an image, type a word, or pick a shape, and the Gerchberg&ndash;Saxton algorithm searches for a phase&#8209;only hologram that reconstructs it. Every FFT runs in Python on the server (<span class="mono">numpy.fft.fft2</span> / <span class="mono">ifft2</span>), not in the browser &mdash; the page just asks for images and displays them. This is the same principle behind spatial light modulators used in real holographic displays and optical trapping.</p>
+
+      <div class="gsgen-controls">
+        <div class="gsgen-controlRow">
+          <label class="holoFile"><input type="file" id="gsgen-imgInput" accept="image/*"><span>Upload image</span></label>
+          <input type="text" id="gsgen-textInput" class="gsgen-textInput" value="HOLOGRAM" maxlength="16" aria-label="Text to render">
+          <button id="gsgen-textBtn" class="holoBtn" type="button">Render text</button>
+          <button class="holoBtn holoTag" data-shape="circle" type="button" aria-pressed="false">Circle</button>
+          <button class="holoBtn holoTag" data-shape="ring" type="button" aria-pressed="false">Ring</button>
+          <button class="holoBtn holoTag" data-shape="cross" type="button" aria-pressed="false">Cross</button>
+          <div class="holoDiv"></div>
+          <label for="gsgen-resSelect" style="font-size:0.82em;opacity:0.7;">Resolution</label>
+          <select id="gsgen-resSelect" class="gsgen-select">
+            <option value="64">64 &times; 64 (fast)</option>
+            <option value="128" selected>128 &times; 128</option>
+            <option value="256">256 &times; 256 (slow)</option>
+          </select>
+        </div>
+
+        <div class="gsgen-controlRow">
+          <div class="holoBtnGroup">
+            <button id="gsgen-play" class="holoBtn primary" type="button">Play</button>
+            <button id="gsgen-step" class="holoBtn" type="button">Step</button>
+            <button id="gsgen-reset" class="holoBtn" type="button">New hologram guess</button>
+          </div>
+          <div class="holoDiv"></div>
+          <div class="holoSpeed" style="min-width:120px">
+            <label for="gsgen-speed">Speed</label>
+            <input type="range" id="gsgen-speed" min="1" max="10" value="5">
+          </div>
+          <div class="holoStats">
+            <span>Iteration <b id="gsgen-iterVal" class="mono">0</b></span>
+            <span>Match <b id="gsgen-corrVal" class="mono">&mdash;</b><span id="gsgen-convTag" class="holoConverged">converged</span></span>
+            <span><b id="gsgen-timeVal" class="mono">&mdash;</b> ms/step</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="gsgen-imageGrid">
+        <div class="gsgen-panel">
+          <h3>Target image</h3>
+          <p class="holoSub">What you want the laser to reconstruct</p>
+          <div class="gsgen-imgWrap"><img id="gsgen-targetImg" alt="Target"><span class="gsgen-empty" id="gsgen-targetEmpty">no target yet</span></div>
+        </div>
+        <div class="gsgen-panel">
+          <h3>Computed hologram phase</h3>
+          <p class="holoSub">The phase&#8209;only pattern &mdash; what gets written to the SLM</p>
+          <div class="gsgen-imgWrap"><img id="gsgen-hologramImg" alt="Hologram phase"></div>
+          <div class="gsgen-panelFoot">
+            <span class="mono" style="font-size:0.72em;opacity:0.6;">grayscale = 0&ndash;2&pi; phase</span>
+            <button id="gsgen-downloadHolo" class="holoBtn" type="button" style="font-size:0.78em;padding:5px 9px;">Download PNG</button>
+          </div>
+        </div>
+        <div class="gsgen-panel">
+          <h3>Reconstructed image</h3>
+          <p class="holoSub">Simulated far&#8209;field result &mdash; a camera at the screen would see this</p>
+          <div class="gsgen-imgWrap"><img id="gsgen-reconImg" alt="Reconstruction"></div>
+          <div class="gsgen-panelFoot">
+            <span class="mono" style="font-size:0.72em;opacity:0.6;">from the Python GS step</span>
+            <button id="gsgen-downloadRecon" class="holoBtn" type="button" style="font-size:0.78em;padding:5px 9px;">Download PNG</button>
+          </div>
+        </div>
+        <div class="gsgen-panel gsgen-sparkPanel">
+          <h3>Convergence</h3>
+          <p class="holoSub">Correlation between reconstruction and target, per iteration</p>
+          <canvas id="gsgen-sparkCanvas" class="gsgen-sparkCanvas"></canvas>
+        </div>
+      </div>
+
+      <div class="gsgen-opticsPanel">
+        <h3>How this hologram is actually used with a laser</h3>
+        <p class="holoSub">The optical path the computed pattern is built for &mdash; light only ever travels forward along it</p>
+        <div class="gsgen-opticsRow" id="gsgen-opticsRow"></div>
+        <p class="gsgen-opticsNote">
+          The GS loop above runs once, in Python, to <b>design</b> the pattern &mdash; the &ldquo;propagate back&rdquo; step is only arithmetic, standing in for what the lens would show if light could run in reverse. On the bench, the pattern is loaded onto a phase&#8209;only spatial light modulator (SLM): each gray level in the hologram panel tells one pixel of the SLM how much to delay the light passing through it, from 0 up to a full 2&pi; cycle. A collimated laser illuminates the SLM, a lens performs a genuine optical Fourier transform of the modulated wavefront, and the reconstructed image appears in that lens's focal plane &mdash; on a screen, or on a camera sensor, exactly like the simulated panel above.
+        </p>
+      </div>
+
+      <p class="holoFoot">Architecture: this tool holds no FFT code at all &mdash; every &ldquo;Step&rdquo; click sends the session id to <span class="mono">POST /api/gsgen/step</span>, a Flask process runs one Gerchberg&ndash;Saxton pass with <span class="mono">numpy.fft.fft2</span>/<span class="mono">ifft2</span>, and returns two PNGs plus a correlation number. &ldquo;Match&rdquo; is a correlation, not a pixel-exact score &mdash; phase-only holograms rarely reach a perfect one. Backend: <span class="mono">epicycle/gs_hologram.py</span>.</p>
+
+    </section>
+
+    <!-- ================= Tool 3: Animated hologram ================= -->
+    <section class="holoToolPanel" data-tool="anim">
+
+      <h2 class="holoTitle">Animated hologram</h2>
+      <p class="holoLede">The Epicycle drawing tool on the Photography page turns one photo into a curve that moves through time. This is the holography counterpart: instead of one static target image, a real 2&#8209;D Gerchberg&#8209;Saxton loop runs against a short <em>sequence</em> of target frames &mdash; simple shapes drawn frame by frame &mdash; converging a fresh phase-only hologram for each one. Playing the frames back shows an actual reconstructed <em>picture</em> changing over time, the same principle behind real time&#8209;multiplexed holographic video.</p>
+
+      <div class="animControls">
+        <div class="animKindRow" role="group" aria-label="Motion">
+          <button class="holoBtn active" type="button" data-kind="moving_dot">Moving dot</button>
+          <button class="holoBtn" type="button" data-kind="growing_ring">Growing ring</button>
+          <button class="holoBtn" type="button" data-kind="rotating_bar">Rotating bar</button>
+          <button class="holoBtn" type="button" data-kind="pulsing_blob">Pulsing blob</button>
+        </div>
+        <label class="animSlider">Frames <span id="anim-framesval">16</span>
+          <input type="range" id="anim-frames" min="6" max="32" value="16" oninput="document.getElementById('anim-framesval').textContent=this.value">
+        </label>
+        <label class="animSlider">GS passes per frame <span id="anim-itersval">15</span>
+          <input type="range" id="anim-iters" min="3" max="40" value="15" oninput="document.getElementById('anim-itersval').textContent=this.value">
+        </label>
+        <label class="holoFile" style="cursor:pointer">
+          <input type="checkbox" id="anim-carry" checked style="width:auto;position:static;opacity:1;clip:auto">
+          <span>Carry phase between frames</span>
+        </label>
+        <button class="holoBtn primary" id="anim-build" type="button">Build sequence</button>
+      </div>
+
+      <p class="holoSub" id="anim-status">Building sequence&hellip;</p>
+
+      <div class="animFrameInfo">
+        <div class="holoBtnGroup">
+          <button class="holoBtn primary" id="anim-play" type="button">Play</button>
+          <button class="holoBtn" id="anim-step" type="button">Step</button>
+        </div>
+        <span id="anim-frameLabel">Frame 1 / 1</span>
+        <span>RMSE <b id="anim-rmse">&mdash;</b></span>
+        <div class="animSlider" style="min-width:120px">Speed
+          <input type="range" id="anim-speed" min="1" max="10" value="6">
+        </div>
+      </div>
+
+      <div class="animFilmstrip" id="anim-filmstrip" aria-label="Frame thumbnails (reconstruction)"></div>
+
+      <div class="holo2dGrid">
+        <div class="holo2dCard"><h4>Target &mdash; current frame</h4><img id="anim-targetImg" alt="Target shape for the current frame"></div>
+        <div class="holo2dCard"><h4>Hologram phase</h4><img id="anim-phaseImg" alt="Computed phase-only hologram for the current frame"></div>
+        <div class="holo2dCard"><h4>Reconstruction</h4><img id="anim-reconImg" alt="Reconstructed image for the current frame"></div>
+      </div>
+
+      <div class="animSparkWrap" style="margin-top:14px">
+        <p class="holoSub">RMSE across all frames (dot marks the current frame)</p>
+        <canvas id="anim-spark"></canvas>
+      </div>
+
+      <p class="holoFoot">Each frame's target is one of four shapes (a moving dot, a growing ring, a rotating bar, or a pulsing blob), drawn with OpenCV in <span class="mono">epicycle/holo_animate.py</span> and softened so it fits the FFT grid cleanly, then converged with the real 2&#8209;D engine in <span class="mono">epicycle/holography2d.py</span> (<span class="mono">numpy.fft.fft2</span> / <span class="mono">ifft2</span>). The whole sequence &mdash; every frame's target, phase and reconstruction image &mdash; comes back from one call to <span class="mono">POST /api/holo2d/anim/build</span>; the browser only plays it back.</p>
+
+    </section>
+
+  </div>
+</div>
+
+<script src="js/holography.js"></script>
+<script src="js/holography-tabs.js"></script>
+<script src="js/holography-gsgen.js"></script>
+<script src="js/holography-animate.js"></script>
+</body>
+</html>

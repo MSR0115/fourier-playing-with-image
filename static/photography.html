@@ -1,0 +1,356 @@
+<!doctype html>
+<!-- Photography hub. Served by app.py (Flask). Frequency filtering, Hybrid Image,
+     Fourier sketching and Epicycle Drawing are all wired to the Python backend. -->
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Photography — Fourier Playing With Image</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;500;600&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/theme.css">
+<link rel="stylesheet" href="css/epicycle.css">
+<link rel="stylesheet" href="css/photography.css">
+<link rel="stylesheet" href="css/frequency.css">
+<script src="js/theme.js"></script>
+</head>
+<body>
+<div class="hub">
+
+  <header class="hubHeader">
+    <a class="back" href="index.html" aria-label="Back to Fourier Playing With Image">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      <span>Fourier Playing With Image</span>
+    </a>
+    <h1 class="hubName">Photography</h1>
+    <button class="themeToggle" type="button">
+      <svg class="i-sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="4"/><path d="M12 2v3M12 19v3M4.2 4.2l2.1 2.1M17.7 17.7l2.1 2.1M2 12h3M19 12h3M4.2 19.8l2.1-2.1M17.7 6.3l2.1-2.1"/></svg>
+      <svg class="i-moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 14.5A8.5 8.5 0 1 1 9.5 4a7 7 0 0 0 10.5 10.5z"/></svg>
+    </button>
+  </header>
+
+  <div class="hubBody">
+    <nav class="rail" aria-label="Photography tools">
+      <button class="railBtn" type="button" data-panel="freq" aria-selected="false">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M2 20c3-2 4-10 7-10s4 12 7 12 4-14 7-14 3 8 3-2" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span>Frequency filtering</span>
+      </button>
+      <button class="railBtn" type="button" data-panel="hybrid" aria-selected="false">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="10.5" cy="14" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="17.5" cy="14" r="7.5" fill="none" stroke="currentColor" stroke-width="1.6"/></svg>
+        <span>Hybrid Image</span>
+      </button>
+      <button class="railBtn" type="button" data-panel="sketch" aria-selected="false">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><path d="M6 22.5 18.5 10a2.1 2.1 0 0 1 3 3L9 25.5H6v-3Z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/><path d="M16.5 11.5l3 3" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/><path d="M4 6h9M4 9.5h6" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" opacity=".6"/></svg>
+        <span>Fourier sketching</span>
+      </button>
+      <button class="railBtn active" type="button" data-panel="epicycle" aria-selected="true">
+        <svg viewBox="0 0 28 28" aria-hidden="true"><circle cx="14" cy="14" r="10.5" fill="none" stroke="currentColor" stroke-width="1.6"/><circle cx="21.5" cy="14" r="3.6" fill="none" stroke="currentColor" stroke-width="1.6"/><path d="M14 3.5v21" stroke="currentColor" stroke-width="1" stroke-dasharray="1.5 2.4"/></svg>
+        <span>Epicycle drawing</span>
+      </button>
+    </nav>
+
+    <div class="hubPanels">
+
+      <section class="hubPanel" data-panel="freq">
+        <div class="freqApp">
+          <main class="freqMain">
+            <h2 class="freqTitle">Frequency filtering</h2>
+            <p class="freqLead">The true continuous 2D Fourier transform, via separable trapezoidal integration — no FFT. Cut or keep a band of frequencies directly and watch the reconstruction change.</p>
+
+            <div class="freqGrid">
+              <div class="freqCard"><h4>Original</h4><div class="freqImgWrap"><img id="fq-imgOrig" alt=""><div class="freqSpin" id="fq-spin1"></div></div></div>
+              <div class="freqCard"><h4>CFT spectrum</h4><div class="freqImgWrap"><img id="fq-imgSpec" alt=""><div class="freqSpin" id="fq-spin2"></div></div></div>
+              <div class="freqCard"><h4>Filtered spectrum</h4><div class="freqImgWrap"><img id="fq-imgFSpec" alt=""><div class="freqSpin" id="fq-spin3"></div></div></div>
+              <div class="freqCard"><h4>Reconstructed</h4><div class="freqImgWrap"><img id="fq-imgRecon" alt=""><div class="freqSpin" id="fq-spin4"></div></div></div>
+            </div>
+
+            <p class="freqHint">Auto-recomputes as you adjust any control. Cutoffs are raw pixel-index distances on the N&times;N frequency grid, so they scale with resolution — the slider ranges track your chosen N automatically. Band-pass / High-pass / Band-stop reconstructions are shown as inverted, normalized edge maps (black edges on white); Low-pass / Brightness are clipped to [0,1].</p>
+          </main>
+
+          <aside class="freqSide">
+            <h3>Photo</h3>
+            <div class="freqDrop" id="fq-drop">
+              <input type="file" id="fq-file" accept="image/*">
+              <span id="fq-filename">Drop image or click to browse</span>
+            </div>
+
+            <h3>Filter</h3>
+            <label for="fq-ftype">Filter type</label>
+            <select id="fq-ftype">
+              <option value="low_pass">Low-pass</option>
+              <option value="high_pass">High-pass</option>
+              <option value="band_pass" selected>Band-pass</option>
+              <option value="band_stop">Band-stop</option>
+              <option value="brightness">Brightness shift (DC)</option>
+            </select>
+
+            <div id="fq-lowhigh">
+              <label for="fq-rlow">r_low <span class="val" id="fq-rlowval">0</span></label>
+              <input type="range" id="fq-rlow" min="0" max="180" value="0">
+              <label for="fq-rhigh">r_high <span class="val" id="fq-rhighval">50</span></label>
+              <input type="range" id="fq-rhigh" min="0" max="180" value="50">
+            </div>
+            <div id="fq-cutoffwrap" style="display:none">
+              <label for="fq-cutoff">Cutoff <span class="val" id="fq-cutoffval">50</span></label>
+              <input type="range" id="fq-cutoff" min="0" max="180" value="50">
+            </div>
+            <div id="fq-shiftwrap" style="display:none">
+              <label for="fq-shift">Shift amount <span class="val" id="fq-shiftval">2.0</span></label>
+              <input type="range" id="fq-shift" min="-5" max="5" step="0.1" value="2.0">
+            </div>
+
+            <label for="fq-size">Resolution (N&times;N) <span class="val" id="fq-sizeval">150</span></label>
+            <input type="range" id="fq-size" min="16" max="400" step="4" value="150">
+
+            <p class="freqStatus" id="fq-status"></p>
+            <div class="freqBadge" id="fq-comp" style="display:none"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hubPanel" data-panel="hybrid">
+        <div class="freqApp">
+          <main class="freqMain">
+            <h2 class="freqTitle">Hybrid Image</h2>
+            <p class="freqLead">One shared cutoff splits the frequency plane: low frequencies come from one photo, high frequencies from another. Summed, the result reads differently up close than from across the room.</p>
+
+            <div class="freqGrid small">
+              <div class="freqCard"><h4>Low-freq source</h4><div class="freqImgWrap"><img id="hy-imgSourceLow" alt=""></div></div>
+              <div class="freqCard"><h4>High-freq source</h4><div class="freqImgWrap"><img id="hy-imgSourceHigh" alt=""></div></div>
+              <div class="freqCard"><h4>Low-pass component</h4><div class="freqImgWrap"><img id="hy-imgLow" alt=""></div></div>
+              <div class="freqCard"><h4>High-pass component</h4><div class="freqImgWrap"><img id="hy-imgHigh" alt=""></div></div>
+            </div>
+
+            <h3 class="freqSectionTitle">Hybrid — perceived differently by viewing distance</h3>
+            <div class="freqGrid small">
+              <div class="freqCard"><h4>Up close</h4><div class="freqImgWrap"><img id="hy-imgNear" alt=""><div class="freqSpin" id="hy-spin"></div></div><p>High-frequency detail dominates</p></div>
+              <div class="freqCard"><h4>A few steps back</h4><div class="freqImgWrap"><img id="hy-imgMid" alt=""></div><p>Both components blend</p></div>
+              <div class="freqCard"><h4>Across the room</h4><div class="freqImgWrap"><img id="hy-imgFar" alt=""></div><p>Low-frequency image dominates</p></div>
+            </div>
+
+            <div id="hy-flip-wrap" style="display:none">
+              <h3 class="freqSectionTitle">Flipped 180&deg; — face-inversion effect</h3>
+              <div class="freqCard" style="max-width:340px">
+                <div class="freqImgWrap"><img id="hy-imgFlipped" alt=""></div>
+                <p>Our visual system processes upright vs. inverted faces differently, changing which frequency band feels dominant.</p>
+              </div>
+            </div>
+
+            <p class="freqHint">Classic Oliva&ndash;Schyns hybrid image: frequencies at or below the shared cutoff come from the low-freq source, everything above comes from the high-freq source. A raw high-pass reconstruction naturally has much lower contrast than a low-pass one (no DC term), so it is auto-balanced to match before the boost slider is applied on top — 1.0&times; is balanced, higher favors the high-freq image, lower favors the low-freq image. Auto-recomputes as you adjust any control.</p>
+          </main>
+
+          <aside class="freqSide">
+            <h3>Low-frequency source</h3>
+            <div class="freqDrop" id="hy-drop-low">
+              <input type="file" id="hy-file-low" accept="image/*">
+              <span id="hy-filename-low">Drop image or click to browse (seen from far away)</span>
+            </div>
+
+            <h3>High-frequency source</h3>
+            <div class="freqDrop" id="hy-drop-high">
+              <input type="file" id="hy-file-high" accept="image/*">
+              <span id="hy-filename-high">Drop image or click to browse (seen up close)</span>
+            </div>
+
+            <h3>Blend</h3>
+            <label for="hy-cutoff">Shared cutoff <span class="val" id="hy-cutoffval">20</span></label>
+            <input type="range" id="hy-cutoff" min="0" max="180" value="20">
+            <label for="hy-gain">High-freq boost <span class="val" id="hy-gainval">1.0&times;</span></label>
+            <input type="range" id="hy-gain" min="0.2" max="2.5" step="0.1" value="1.0">
+            <label for="hy-size">Resolution (N&times;N) <span class="val" id="hy-sizeval">150</span></label>
+            <input type="range" id="hy-size" min="16" max="400" step="4" value="150">
+
+            <label class="freqCheck"><input type="checkbox" id="hy-flip"><span>Show upside-down (face-inversion effect)</span></label>
+
+            <p class="freqStatus" id="hy-status"></p>
+            <div class="freqBadge" id="hy-equiv" style="display:none"></div>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hubPanel" data-panel="sketch">
+        <div class="freqApp">
+          <main class="freqMain">
+            <h2 class="freqTitle">Fourier sketching</h2>
+            <p class="freqLead">A face becomes a pencil sketch. A Fourier high-pass filter finds the edges — the same frequency-domain masking as Frequency filtering, tuned here for clean line work — then a threshold turns them into crisp boundaries, and a classic color-dodge blend shades softly inside them.</p>
+
+            <div class="freqGrid">
+              <div class="freqCard"><h4>Grayscale</h4><div class="freqImgWrap"><img id="sk-imgGray" alt=""><div class="freqSpin" id="sk-spin1"></div></div></div>
+              <div class="freqCard"><h4>Noise reduction</h4><div class="freqImgWrap"><img id="sk-imgSmooth" alt=""><div class="freqSpin" id="sk-spin2"></div></div></div>
+              <div class="freqCard"><h4>Fourier edge detection</h4><div class="freqImgWrap"><img id="sk-imgEdge" alt=""><div class="freqSpin" id="sk-spin3"></div></div></div>
+              <div class="freqCard"><h4>Thresholding</h4><div class="freqImgWrap"><img id="sk-imgThresh" alt=""><div class="freqSpin" id="sk-spin4"></div></div></div>
+            </div>
+
+            <h3 class="freqSectionTitle">Final pencil sketch</h3>
+            <div class="freqCard" style="max-width:420px">
+              <div class="freqImgWrap"><img id="sk-imgFinal" alt=""><div class="freqSpin" id="sk-spin5"></div></div>
+            </div>
+            <div class="row" style="margin-top:12px">
+              <button class="btn" id="sk-download" type="button">Download result</button>
+            </div>
+
+            <p class="freqHint">Grayscale &rarr; bilateral pre-smoothing (edge-preserving noise reduction) &rarr; FFT &rarr; a high-pass mask around the zero-frequency center (Gaussian rolloff or an ideal hard cutoff) &rarr; inverse FFT &rarr; Otsu or manual thresholding &rarr; color-dodge pencil shading confined to the thresholded edges. Auto-recomputes as you adjust any control.</p>
+          </main>
+
+          <aside class="freqSide">
+            <h3>Photo</h3>
+            <div class="freqDrop" id="sk-drop">
+              <input type="file" id="sk-file" accept="image/*">
+              <span id="sk-filename">Drop image or click to browse</span>
+            </div>
+
+            <h3>Edge detection</h3>
+            <label for="sk-cutoff">Frequency cutoff <span class="val" id="sk-cutoffval">22</span></label>
+            <input type="range" id="sk-cutoff" min="5" max="80" value="22">
+            <label for="sk-hpmode">Filter type</label>
+            <select id="sk-hpmode">
+              <option value="gaussian" selected>Gaussian (smooth)</option>
+              <option value="ideal">Ideal (hard cutoff)</option>
+            </select>
+
+            <h3>Threshold</h3>
+            <label for="sk-threshmethod">Method</label>
+            <select id="sk-threshmethod">
+              <option value="otsu" selected>Automatic (Otsu)</option>
+              <option value="manual">Manual</option>
+            </select>
+            <div id="sk-manualwrap" style="display:none">
+              <label for="sk-manualthresh">Manual threshold <span class="val" id="sk-manualthreshval">127</span></label>
+              <input type="range" id="sk-manualthresh" min="0" max="255" value="127">
+            </div>
+
+            <h3>Shading</h3>
+            <label for="sk-presmooth">Noise reduction <span class="val" id="sk-presmoothval">2</span></label>
+            <input type="range" id="sk-presmooth" min="0" max="10" value="2">
+            <label for="sk-blursigma">Pencil blur radius <span class="val" id="sk-blursigmaval">21</span></label>
+            <input type="range" id="sk-blursigma" min="3" max="51" step="2" value="21">
+            <label class="freqCheck"><input type="checkbox" id="sk-shading" checked><span>Enable soft pencil shading</span></label>
+
+            <p class="freqStatus" id="sk-status"></p>
+          </aside>
+        </div>
+      </section>
+
+      <section class="hubPanel active" data-panel="epicycle">
+        <div class="app">
+          <main class="stage" id="stage">
+            <div class="grid"></div>
+            <canvas id="cRef" aria-hidden="true"></canvas>
+            <canvas id="cStr" aria-hidden="true"></canvas>
+            <canvas id="cTrail" role="img" aria-label="Portrait being drawn by rotating circles"></canvas>
+            <canvas id="cLive" aria-hidden="true"></canvas>
+            <ol class="steps" id="steps" aria-label="Pipeline">
+              <li data-s="src"><i class="dot"></i>Source</li>
+              <li data-s="features"><i class="dot"></i>Features</li>
+              <li data-s="fourier"><i class="dot"></i>Fourier</li>
+              <li data-s="draw"><i class="dot"></i>Drawing</li>
+            </ol>
+            <div class="tools" role="toolbar" aria-label="Contour tools">
+              <button class="tool" type="button" data-tool="focus" aria-pressed="false" title="Focus (F): find new contours under the square">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 9V5h4M20 9V5h-4M4 15v4h4M20 15v4h-4"/><circle cx="12" cy="12" r="3"/></svg><span>Focus</span></button>
+              <button class="tool" type="button" data-tool="erase" aria-pressed="false" title="Erase (E): remove lines under the square">
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8 20h11M5.5 14.5l7-8a2 2 0 0 1 2.8-.2l2.4 2.2a2 2 0 0 1 .2 2.8L12 18.5H8.5L5.5 15.5a1.2 1.2 0 0 1 0-1z"/></svg><span>Erase</span></button>
+              <button class="tool undoBtn" type="button" title="Undo (Ctrl+Z)" disabled>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 7 4 12l5 5"/><path d="M4 12h9a6 6 0 0 1 6 6"/></svg><span>Undo</span></button>
+            </div>
+            <div class="hud"><span class="status" id="status" aria-live="polite"></span><span class="readout" id="readout"></span></div>
+            <div class="bar"><i id="bar"></i></div>
+            <div class="veil" aria-hidden="true">Drop the photo to redraw it</div>
+          </main>
+
+          <aside class="panel">
+            <header>
+              <h2 class="toolTitle">Epicycle drawing</h2>
+              <p class="lead">A face becomes one closed curve, and a stack of spinning circles redraws it.</p>
+            </header>
+
+            <section aria-labelledby="h-photo">
+              <h3 id="h-photo">Photo</h3>
+              <div class="drop" id="drop">
+                <p>Drop a face photo here, paste one, or pick a file.</p>
+                <div class="row">
+                  <button class="btn primary" id="btnChoose" type="button">Choose photo</button>
+                  <button class="btn" id="btnSample" type="button">Use sample</button>
+                </div>
+                <input type="file" id="file" accept="image/*" hidden>
+                <p class="fine">Your photo goes only to the Python server on your own computer.</p>
+              </div>
+              <p class="fine" id="analysisNote"></p>
+            </section>
+
+            <section aria-labelledby="h-features">
+              <h3 id="h-features">Features</h3>
+              <div class="chips" id="featureChips"></div>
+              <div class="chips"><label class="chip"><input type="checkbox" id="cbColor" checked><span>Color by feature</span></label></div>
+              <p class="fine">Each feature is found separately and drawn as its own group of strokes. Switch one off to redraw without it.</p>
+            </section>
+
+            <section aria-labelledby="h-edit">
+              <h3 id="h-edit">Edit contours</h3>
+              <div class="seg" role="radiogroup" aria-label="Contour tool">
+                <label><input type="radio" name="tool" value="off" checked><span>Off</span></label>
+                <label><input type="radio" name="tool" value="focus"><span>Focus</span></label>
+                <label><input type="radio" name="tool" value="erase"><span>Erase</span></label>
+              </div>
+              <div class="ctl" style="margin-top:14px"><label for="rSize">Square size</label><output id="oSize"></output><input type="range" id="rSize" min="16" max="160" value="56"></div>
+              <div class="ctl"><label for="rFocus">Focus detail</label><output id="oFocus"></output><input type="range" id="rFocus" min="0" max="100" value="60"></div>
+              <div class="chips"><label class="chip"><input type="checkbox" id="cbWhole"><span>Erase whole contours</span></label></div>
+              <div class="row" style="align-items:center">
+                <button class="btn undoBtn" type="button" disabled>Undo</button>
+                <button class="btn" id="btnClearEdits" type="button" disabled>Clear edits</button>
+                <span class="fine" id="editCount" style="margin:0 0 0 4px">No edits yet</span>
+              </div>
+              <p class="fine">Focus lifts the photo under the square and finds fresh contours there. Erase rubs out lines under the square. Keys: F, E, Esc, [ and ] for size.</p>
+            </section>
+
+            <section aria-labelledby="h-contours">
+              <h3 id="h-contours">Contours</h3>
+              <fieldset id="fsContours">
+                <div class="ctl"><label for="rDetail">Detail</label><output id="oDetail"></output><input type="range" id="rDetail" min="0" max="100" value="72"></div>
+                <div class="ctl"><label for="rSmooth">Smoothing</label><output id="oSmooth"></output><input type="range" id="rSmooth" min="8" max="30" value="14"></div>
+                <div class="ctl"><label for="rClean">Clean-up</label><output id="oClean"></output><input type="range" id="rClean" min="3" max="60" value="10"></div>
+              </fieldset>
+              <p class="fine" id="contourNote"></p>
+            </section>
+
+            <section aria-labelledby="h-circles">
+              <h3 id="h-circles">Circles</h3>
+              <div class="ctl"><label for="rK">Circles</label><output id="oK"></output><input type="range" id="rK" min="0" max="100" value="80"></div>
+              <div class="ctl"><label for="rTime">Draw time</label><output id="oTime"></output><input type="range" id="rTime" min="6" max="80" value="24"></div>
+              <div class="chips">
+                <label class="chip"><input type="checkbox" id="cbCircles" checked><span>Circles</span></label>
+                <label class="chip"><input type="checkbox" id="cbArms" checked><span>Arms</span></label>
+                <label class="chip"><input type="checkbox" id="cbLoop"><span>Loop</span></label>
+              </div>
+              <span class="field-label" id="lblRef">Reference underneath</span>
+              <div class="seg" role="radiogroup" aria-labelledby="lblRef">
+                <label><input type="radio" name="ref" value="none" checked><span>None</span></label>
+                <label><input type="radio" name="ref" value="photo" id="rdPhoto" disabled><span>Photo</span></label>
+                <label><input type="radio" name="ref" value="contours"><span>Contours</span></label>
+              </div>
+            </section>
+
+            <section aria-label="Playback">
+              <div class="actions">
+                <button class="btn" id="btnPlay" type="button">Pause</button>
+                <button class="btn" id="btnRedraw" type="button">Redraw</button>
+                <button class="btn" id="btnFinish" type="button">Finish</button>
+                <button class="btn" id="btnSave" type="button" hidden>Save image</button>
+              </div>
+              <p class="fine credit">Backend: Python, Flask, OpenCV and NumPy. This page draws the epicycles.</p>
+            </section>
+          </aside>
+        </div>
+      </section>
+
+    </div>
+  </div>
+</div>
+
+<script src="js/app.js"></script>
+<script src="js/frequency.js"></script>
+<script src="js/sketch.js"></script>
+<script src="js/photography.js"></script>
+</body>
+</html>

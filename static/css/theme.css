@@ -1,0 +1,92 @@
+/* ==========================================================================
+   theme.css: shared color tokens, fonts and base reset for every page.
+   Same palette the epicycle stage already used, so Landing / Photography /
+   Holography all read as one instrument rather than three different sites.
+   ========================================================================== */
+:root {
+  box-sizing: border-box;
+  padding-top: env(safe-area-inset-top, 0px);
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  color-scheme: light;
+  --paper: #edf3f5;
+  --panel: #e2eaee;
+  --field: #f6fafb;
+  --ink: #10294a;
+  --muted: #526a80;
+  --line: #bccbd6;
+  --accent: #c47600;
+  --accent-soft: rgba(196, 118, 0, .16);
+  --accent-ink: #1b1200;
+  --grid: rgba(16, 41, 74, .075);
+  --focus: #1a5fd0;
+  --danger: #a3241c;
+  --p1: #b45f00; --p2: #10294a; --p3: #0b7d4c; --p4: #8a6a00; --p5: #c0154a; --p6: #6a3fc0; --p7: #0a7f88; --p8: #5b7086;
+  --serif: 'Instrument Serif', 'Iowan Old Style', 'Palatino Linotype', Georgia, serif;
+  --sans: 'Hanken Grotesk', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    color-scheme: dark;
+    --paper: #0a1b30;
+    --panel: #0e2340;
+    --field: #0a1b30;
+    --ink: #e6f1f8;
+    --muted: #93abc1;
+    --line: #24425f;
+    --accent: #ffc247;
+    --accent-soft: rgba(255, 194, 71, .16);
+    --accent-ink: #0a1b30;
+    --grid: rgba(230, 241, 248, .065);
+    --focus: #7db4ff;
+    --danger: #ff9a8f;
+    --p1: #ffb454; --p2: #e6f1f8; --p3: #5fe3a1; --p4: #f2d95c; --p5: #ff6f96; --p6: #b89cff; --p7: #5fe3e6; --p8: #9fb5c9;
+  }
+}
+:root[data-theme="dark"] {
+  color-scheme: dark;
+  --paper: #0a1b30;
+  --panel: #0e2340;
+  --field: #0a1b30;
+  --ink: #e6f1f8;
+  --muted: #93abc1;
+  --line: #24425f;
+  --accent: #ffc247;
+  --accent-soft: rgba(255, 194, 71, .16);
+  --accent-ink: #0a1b30;
+  --grid: rgba(230, 241, 248, .065);
+  --focus: #7db4ff;
+  --danger: #ff9a8f;
+  --p1: #ffb454; --p2: #e6f1f8; --p3: #5fe3a1; --p4: #f2d95c; --p5: #ff6f96; --p6: #b89cff; --p7: #5fe3e6; --p8: #9fb5c9;
+}
+html { height: 100%; scroll-padding-top: env(safe-area-inset-top, 0px); }
+*, *::before, *::after { box-sizing: inherit; }
+body {
+  margin: 0; background: var(--paper); color: var(--ink);
+  font: 15px/1.45 var(--sans);
+  -webkit-font-smoothing: antialiased;
+}
+button, input, a { font: inherit; color: inherit; }
+a { text-decoration: none; }
+
+/* the little sun/moon switch, reused on every page */
+.themeToggle {
+  appearance: none; cursor: pointer; display: grid; place-items: center;
+  width: 38px; height: 38px; border-radius: 50%;
+  border: 1px solid var(--line); background: var(--field); color: var(--ink);
+  transition: border-color .2s, transform .15s, background-color .2s;
+}
+.themeToggle:hover { border-color: var(--ink); }
+.themeToggle:active { transform: translateY(1px); }
+.themeToggle:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+.themeToggle svg { width: 18px; height: 18px; }
+.themeToggle .i-sun { display: none; }
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) .themeToggle .i-moon { display: none; }
+  :root:not([data-theme="light"]) .themeToggle .i-sun { display: block; }
+}
+:root[data-theme="dark"] .themeToggle .i-moon { display: none; }
+:root[data-theme="dark"] .themeToggle .i-sun { display: block; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}

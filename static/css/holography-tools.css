@@ -1,0 +1,343 @@
+/* Holography hub: tab rail + the two newer tools (Fourier hologram generator,
+   Animated hologram).  Loaded after holography.css.  Reuses its --holo-target /
+   --holo-amp tokens where it can; everything else here uses currentColor /
+   low-opacity fills so it stays close to whatever light/dark palette theme.css
+   defines without guessing its variable names. */
+
+.holoTabs {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+  margin: 18px 0 22px;
+  border-bottom: 1px solid rgba(127, 127, 127, 0.25);
+  padding-bottom: 0;
+}
+
+.holoTab {
+  appearance: none;
+  border: none;
+  background: none;
+  color: inherit;
+  font: inherit;
+  font-weight: 500;
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 8px 8px 0 0;
+  opacity: 0.6;
+  position: relative;
+  top: 1px;
+}
+
+.holoTab:hover {
+  opacity: 0.85;
+  background: rgba(127, 127, 127, 0.08);
+}
+
+.holoTab.active {
+  opacity: 1;
+  border-bottom: 2px solid currentColor;
+}
+
+.holoToolPanel {
+  display: none;
+}
+
+.holoToolPanel.active {
+  display: block;
+}
+
+/* ---------- shared: the 3-image result grid (Target / Phase / Reconstruction),
+   the Holography-page equivalent of Photography's Original/spectrum/reconstructed
+   card grid ---------- */
+
+.holo2dGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 14px;
+  margin-top: 10px;
+}
+
+@media (max-width: 700px) {
+  .holo2dGrid { grid-template-columns: 1fr; }
+}
+
+.holo2dCard {
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  border-radius: 12px;
+  padding: 10px;
+  background: rgba(127, 127, 127, 0.04);
+}
+
+.holo2dCard h4 {
+  margin: 0 0 8px;
+  font-size: 0.82em;
+  font-weight: 600;
+  opacity: 0.75;
+}
+
+.holo2dCard img {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  object-fit: contain;
+  border-radius: 8px;
+  background: repeating-conic-gradient(rgba(127,127,127,0.10) 0% 25%, transparent 0% 50%) 50% / 16px 16px;
+  image-rendering: pixelated;
+}
+
+/* ---------- Animated hologram ---------- */
+
+.animControls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  align-items: center;
+  margin: 14px 0 20px;
+}
+
+.animKindRow {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.animSlider {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 0.85em;
+  min-width: 150px;
+}
+
+.animFrameInfo {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin: 10px 0 4px;
+  font-size: 0.92em;
+}
+
+.animFilmstrip {
+  display: flex;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 8px 2px 12px;
+  margin-top: 10px;
+}
+
+.animFrameThumb {
+  flex: 0 0 auto;
+  width: 46px;
+  height: 60px;
+  border-radius: 6px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  cursor: pointer;
+  background: rgba(127, 127, 127, 0.05);
+  padding: 3px;
+}
+
+.animFrameThumb.current {
+  border-color: currentColor;
+  box-shadow: 0 0 0 1px currentColor inset;
+}
+
+.animSparkWrap canvas {
+  width: 100%;
+  height: 90px;
+  border-radius: 10px;
+  background: rgba(127, 127, 127, 0.05);
+}
+
+/* ---------- Fourier hologram generator (GS Generator — tool 2) ---------- */
+
+.gsgen-controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 14px 0 22px;
+}
+
+.gsgen-controlRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 10px 14px;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 12px;
+  padding: 12px 14px;
+  background: rgba(127, 127, 127, 0.03);
+}
+
+.gsgen-textInput {
+  font: inherit;
+  font-size: 0.88em;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  background: rgba(127, 127, 127, 0.06);
+  color: inherit;
+  width: 140px;
+}
+
+.gsgen-select {
+  font: inherit;
+  font-size: 0.88em;
+  padding: 6px 10px;
+  border-radius: 8px;
+  border: 1px solid rgba(127, 127, 127, 0.3);
+  background: rgba(127, 127, 127, 0.06);
+  color: inherit;
+}
+
+.gsgen-imageGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-bottom: 20px;
+}
+
+@media (max-width: 760px) {
+  .gsgen-imageGrid { grid-template-columns: 1fr; }
+}
+
+.gsgen-panel {
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 14px;
+  padding: 14px 16px 12px;
+  background: rgba(127, 127, 127, 0.03);
+}
+
+.gsgen-panel h3 {
+  font-size: 0.96em;
+  font-weight: 600;
+  margin: 0 0 2px;
+}
+
+.gsgen-imgWrap {
+  border-radius: 10px;
+  overflow: hidden;
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  background: #000;
+  aspect-ratio: 1 / 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 8px;
+}
+
+.gsgen-imgWrap img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  image-rendering: auto;
+}
+
+.gsgen-empty {
+  color: #666;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 0.75em;
+}
+
+.gsgen-panelFoot {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8px;
+}
+
+.gsgen-sparkPanel {
+  grid-column: span 2;
+}
+
+@media (max-width: 760px) {
+  .gsgen-sparkPanel { grid-column: span 1; }
+}
+
+.gsgen-sparkCanvas {
+  width: 100%;
+  height: 150px;
+  border-radius: 10px;
+  background: rgba(127, 127, 127, 0.05);
+  margin-top: 6px;
+}
+
+/* optics diagram */
+.gsgen-opticsPanel {
+  border: 1px solid rgba(127, 127, 127, 0.2);
+  border-radius: 14px;
+  padding: 14px 16px 12px;
+  background: rgba(127, 127, 127, 0.03);
+  margin-bottom: 18px;
+}
+
+.gsgen-opticsPanel h3 {
+  font-size: 0.96em;
+  font-weight: 600;
+  margin: 0 0 2px;
+}
+
+.gsgen-opticsRow {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  padding: 6px 2px 10px;
+}
+
+.gsgen-stage {
+  flex: 0 0 auto;
+  width: 126px;
+  text-align: center;
+}
+
+.gsgen-stageIcon {
+  width: 58px;
+  height: 58px;
+  margin: 0 auto 7px;
+  border-radius: 10px;
+  border: 1px solid rgba(127, 127, 127, 0.25);
+  background: rgba(127, 127, 127, 0.06);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.gsgen-stageIcon img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.gsgen-stageTitle {
+  font-size: 0.82em;
+  font-weight: 600;
+  margin-bottom: 3px;
+}
+
+.gsgen-stageDesc {
+  font-size: 0.72em;
+  opacity: 0.65;
+  line-height: 1.4;
+}
+
+.gsgen-conn {
+  flex: 0 0 auto;
+  opacity: 0.5;
+  font-size: 1.3em;
+  padding-bottom: 26px;
+}
+
+.gsgen-opticsNote {
+  font-size: 0.82em;
+  opacity: 0.7;
+  line-height: 1.6;
+  margin-top: 4px;
+}
+
+.gsgen-opticsNote b {
+  opacity: 1;
+  font-weight: 600;
+}
